@@ -1,6 +1,8 @@
 use clap::Parser;
-pub mod cli;
+mod cli;
 use cli::{Cli, Commands};
+mod watch;
+use watch::watch;
 fn main() {
     let cli = Cli::parse();
     if cli.htmx {
@@ -8,10 +10,11 @@ fn main() {
     } else {
         println!("Htmx support disabled");
     }
-
+    //
     match cli.command {
         Commands::Run => {
             println!("Running the Go server");
+            watch();
         }
         Commands::Init => {
             println!("Initializing the config file");
