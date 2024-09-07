@@ -8,7 +8,7 @@ use clap::{Parser, Subcommand};
 #[command(propagate_version = true)]
 struct Cli {
     /// Enable htmx support
-    #[arg(short = 'x', long)]
+    #[arg(short = 'x', long, global = true)]
     htmx: bool,
     #[command(subcommand)]
     command: Commands,
@@ -16,8 +16,11 @@ struct Cli {
 #[derive(Subcommand)]
 enum Commands {
     /// Run the Go server
+    ///, r is an alias for run
+    #[command(alias = "r")]
     Run,
     /// Initialize a config file
+    // to be implemented later
     Init,
 }
 fn main() {
