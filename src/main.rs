@@ -1,25 +1,6 @@
-use clap::{Parser, Subcommand};
-
-#[derive(Parser)]
-#[command(name = "RustyGo🚀")]
-#[command(version = "0.0.1")]
-#[command(about = "A Rust based auto-reloader for Go! 🚀", long_about = None)]
-#[command(next_line_help = true)]
-#[command(propagate_version = true)]
-struct Cli {
-    /// Enable htmx support
-    #[arg(short = 'x', long)]
-    htmx: bool,
-    #[command(subcommand)]
-    command: Commands,
-}
-#[derive(Subcommand)]
-enum Commands {
-    /// Run the Go server
-    Run,
-    /// Initialize a config file
-    Init,
-}
+use clap::Parser;
+pub mod cli;
+use cli::{Cli, Commands};
 fn main() {
     let cli = Cli::parse();
     if cli.htmx {
