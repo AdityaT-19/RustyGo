@@ -1,27 +1,54 @@
-use std::{path::Path, sync::mpsc::channel, time::Duration};
+use std::{
+    path::Path,
+    sync::mpsc::channel,
+    time::{Duration, Instant},
+};
 
-use notify_debouncer_full::{new_debouncer, notify::*, DebounceEventResult};
+use notify::{Event, RecursiveMode, Watcher};
 
-// Select recommended watcher for debouncer.
-// Using a callback here, could also be a channel.
-pub fn watch() {
+pub fn watch(path: &str, with_htmx: bool) {
     let (tx, rx) = channel();
-    let mut debouncer = new_debouncer(Duration::from_secs(5), None, tx).unwrap();
-    debouncer
-        .watcher()
-        .watch(Path::new("./src"), RecursiveMode::Recursive)
-        .unwrap();
 
-    debouncer
-        .cache()
-        .add_root(Path::new("./src"), RecursiveMode::Recursive);
+    let mut watcher = notify::recommended_watcher(tx).expect("Failed to create watcher");
 
+    watcher
+        .watch(Path::new(path), RecursiveMode::Recursive)
+        .expect("Failed to watch path");
+
+    let debounce_dur = Duration::from_millis(2000);
+    let mut last_ev = Instant::now();
     for res in rx {
         match res {
-            Err(e) => eprintln!("Error: {:?}", e),
             Ok(val) => {
-                println!("Event: {:?}", val[0]);
+                handle_change(with_htmx, val, debounce_dur, &mut last_ev);
+            }
+            Err(_) => {
+                println!("No changes detected");
             }
         }
+    }
+}
+
+fn handle_change(with_htmx: bool, val: Event, debounce_dur: Duration, last_ev: &mut Instant) {
+    if last_ev.elapsed() <= debounce_dur {
+        return;
+    }
+
+    *last_ev = Instant::now();
+
+    if val
+        .paths
+        .iter()
+        .any(|path| path.extension().unwrap() == "go")
+    {
+        println!("Go file changed");
+    }
+    if with_htmx
+        && val
+            .paths
+            .iter()
+            .any(|path| path.extension().unwrap() == "html")
+    {
+        println!("HTML file changed");
     }
 }
