@@ -18,7 +18,11 @@ pub enum Commands {
     /// Run the Go server
     ///, r is an alias for run
     #[command(alias = "r")]
-    Run,
+    Run {
+        /// The path to the Go files
+        #[arg(short, long, default_value = ".")]
+        path: String,
+    },
     /// Initialize a config file
     // to be implemented later
     Init,

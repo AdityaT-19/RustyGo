@@ -11,9 +11,9 @@ fn main() {
         println!("Htmx support disabled");
     }
     match cli.command {
-        Commands::Run => {
+        Commands::Run { path } => {
             println!("Watching the Go Files");
-            watch("./src", cli.htmx);
+            watch(&path, cli.htmx);
         }
         Commands::Init => {
             println!("Initializing the config file");
